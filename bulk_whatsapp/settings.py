@@ -93,10 +93,10 @@ WSGI_APPLICATION = 'bulk_whatsapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'bulk_sms_proj',        # your database name
-        'USER': 'root',                # your MySQL username
-        'PASSWORD': 'root',   # your MySQL password
-        'HOST': 'localhost',           # or IP if using a remote DB
+        'NAME': 'u844009458_whatsapp_data',        # your database name
+        'USER': 'eshwarvadde850',                # your MySQL username
+        'PASSWORD': 'eshwar9642',   # your MySQL password
+        'HOST': 'YOUR_HOSTINGER_MYSQL_HOST',           # or IP if using a remote DB
         'PORT': '3306', 
          'OPTIONS': {
             'charset': 'utf8mb4',  # 👈 THIS IS CRITICAL
