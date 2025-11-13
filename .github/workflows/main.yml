@@ -41,7 +41,7 @@ jobs:
 
     - name: Test MySQL Connection
       run: |
-        mysql -h YOUR_HOSTINGER_MYSQL_HOST -P 3306 -u u844009458_eshwarvadde8 -peshwar9642 -e "SHOW DATABASES;"
+          mysql -h auth-db1235.hstgr.io -P 3306 -u u844009458_eshwarvadde8 -peshwar9642 -e "SHOW DATABASES;"
 
     - name: Run Migrations
       run: python manage.py migrate
