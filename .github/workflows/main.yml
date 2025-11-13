@@ -1,61 +1,64 @@
-name: Deploy Django to Hostinger via SSH
+name: Deploy Django to Hostinger
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Install dependencies (local - only for build if needed)
-        run: |
-          python -m pip install --upgrade pip
+    - name: Upload project to Hostinger
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: 45.130.228.227
+        username: u844009458
+        port: 65002
+        key: ${{ secrets.HOSTINGER_SSH_KEY }}
+        source: "./"
+        target: "/home/u844009458/domains/iidmwhatsappfastapi.online/public_html/iidm-whatsapp"
 
-      # Deploy code to Hostinger
-      - name: Upload project to Hostinger
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: 45.130.228.227
-          username: u844009458
-          port: 65002
-          key: ${{ secrets.HOSTINGER_SSH_KEY }}
-          source: "./"
-          target: "<<<PROJECT_PATH>>>"
+    - name: Run commands on Hostinger
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 45.130.228.227
+        username: u844009458
+        port: 65002
+        key: ${{ secrets.HOSTINGER_SSH_KEY }}
+        script: |
+          cd /home/u844009458/domains/iidmwhatsappfastapi.online/public_html/iidm-whatsapp
 
-      # Run commands on Hostinger server
-      - name: Run migrations & setup on Hostinger
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: 45.130.228.227
-          username: u844009458
-          port: 65002
-          key: ${{ secrets.HOSTINGER_SSH_KEY }}
-          script: |
-            cd <<<PROJECT_PATH>>>
+          # Create virtual environment if not exists
+          if [ ! -d "venv" ]; then
             python3 -m venv venv
-            source venv/bin/activate
-            pip install --upgrade pip
-            pip install -r requirements.txt
+          fi
 
-            # Create ENV file if needed
-            echo "DB_NAME=u844009458_whatsapp_data" > .env
-            echo "DB_USER=u844009458_eshwarvadde8" >> .env
-            echo "DB_PASSWORD=eshwar9642" >> .env
-            echo "DB_HOST=auth-db1235.hstgr.io" >> .env
-            echo "DB_PORT=3306" >> .env
-            echo "SECRET_KEY=your-secret-key" >> .env
-            echo "DEBUG=False" >> .env
+          # Activate venv
+          source venv/bin/activate
 
-            python manage.py migrate
-            # Add restart command if using gunicorn or passenger
-            # touch tmp/restart.txt
+          # Upgrade pip
+          pip install --upgrade pip
+
+          # Install dependencies
+          pip install -r requirements.txt
+
+          # Create/update .env file
+          echo "DEBUG=False" > .env
+          echo "SECRET_KEY=your-secret-key" >> .env
+          echo "DB_NAME=u844009458_whatsapp_data" >> .env
+          echo "DB_USER=u844009458_eshwarvadde8" >> .env
+          echo "DB_PASSWORD=eshwar9642" >> .env
+          echo "DB_HOST=auth-db1235.hstgr.io" >> .env
+          echo "DB_PORT=3306" >> .env
+
+          # Run Django migrations
+          python manage.py migrate
+
+          # Restart Passenger (Hostinger Python runtime)
+          touch ../tmp/restart.txt
