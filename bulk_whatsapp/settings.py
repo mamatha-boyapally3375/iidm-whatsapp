@@ -93,11 +93,11 @@ WSGI_APPLICATION = 'bulk_whatsapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'u844009458_whatsapp_data',        # your database name
-        'USER': 'eshwarvadde850',                # your MySQL username
-        'PASSWORD': 'eshwar9642',   # your MySQL password
-        'HOST': 'YOUR_HOSTINGER_MYSQL_HOST',           # or IP if using a remote DB
-        'PORT': '3306', 
+        'NAME': config('u844009458_whatsapp_data'),        # your database name
+        'USER': config('eshwarvadde850'),                # your MySQL username
+        'PASSWORD': config('eshwar9642'),   # your MySQL password
+        'HOST': config('YOUR_HOSTINGER_MYSQL_HOST'),           # or IP if using a remote DB
+        'PORT': config('3306', default='3306'), 
          'OPTIONS': {
             'charset': 'utf8mb4',  # 👈 THIS IS CRITICAL
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
