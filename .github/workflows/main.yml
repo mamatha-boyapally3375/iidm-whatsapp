@@ -1,65 +1,35 @@
-name: Deploy Django to Hostinger
+services:
+  - type: web
+    name: iidm-whatsapp
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn bulk_whatsapp.wsgi:application --preload"
+    autoDeploy: true
 
-on:
-  push:
-    branches:
-      - main
+    envVars:
+      - key: SECRET_KEY
+        sync: false
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+      - key: DEBUG
+        value: True
 
-    steps:
+      - key: ALLOWED_HOSTS
+        value: iidm-whatsapp.onrender.com,localhost
 
-    - name: Checkout code
-      uses: actions/checkout@v4
+      # Hostinger DB Values
+      - key: DB_NAME
+        value: u844009458_whatsapp_data
+      - key: DB_USER
+        value: u844009458_eshwarvadde8
+      - key: DB_PASSWORD
+        value: eshwar9642
+      - key: DB_HOST
+        value: auth-db1235.hstgr.io
+      - key: DB_PORT
+        value: 3306
 
-    - name: Upload project to Hostinger
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: 45.130.228.227
-        username: u844009458
-        port: 65002
-        key: ${{ secrets.HOSTINGER_SSH_KEY }}
-        source: "./"
-        target: "/home/u844009458/domains/iidmwhatsappfastapi.online/public_html/iidm-whatsapp"
-
-    - name: Run commands on Hostinger
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: 45.130.228.227
-        username: u844009458
-        port: 65002
-        key: ${{ secrets.HOSTINGER_SSH_KEY }}
-        script: |
-          cd /home/u844009458/domains/iidmwhatsappfastapi.online/public_html/iidm-whatsapp
-
-          # Create virtual environment if not exists
-          if [ ! -d "venv" ]; then
-            py -m venv venv
-          fi
-
-          # Activate venv
-          source venv/bin/activate
-
-          # Upgrade pip
-          py -m pip install --upgrade pip
-
-          # Install dependencies
-          py -m pip install -r requirements.txt
-
-          # Create/update .env file
-          echo "DEBUG=False" > .env
-          echo "SECRET_KEY=your-secret-key" >> .env
-          echo "DB_NAME=u844009458_whatsapp_data" >> .env
-          echo "DB_USER=u844009458_eshwarvadde8" >> .env
-          echo "DB_PASSWORD=eshwar9642" >> .env
-          echo "DB_HOST=auth-db1235.hstgr.io" >> .env
-          echo "DB_PORT=3306" >> .env
-
-          # Run Django migrations
-          py manage.py makemigrations
-          py manage.py migrate
-
-          
-
+      # Optional
+      - key: NGROK_URL
+        value: https://abc123.ngrok.io
+      - key: SMS_API_KEYS
+        value: 64f9c578744246a0b2d0af43ccd09d34
