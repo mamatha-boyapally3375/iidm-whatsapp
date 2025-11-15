@@ -12,8 +12,7 @@ SECRET_KEY = config("SECRET_KEY", default="dev-secret-key")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
+    "iidm.co.in"
     config("RENDER_EXTERNAL_HOSTNAME", default=""),
 ]
 
