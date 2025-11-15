@@ -111,14 +111,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # --------------------------
 # STATIC / MEDIA
 # --------------------------
-STATIC_URL = "/static/"
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static")
-]
-
-# STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_URL = '/static/'
 STATIC_ROOT = '/var/www/iidm-whatsapp/static/'
+
+STATICFILES_DIRS = []   # KEEP EMPTY OR REMOVE COMPLETELY
+
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
