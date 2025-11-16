@@ -157,20 +157,18 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
-        "utils_file": {
+        "all_file": {
             "class": "logging.FileHandler",
-            "filename": "/var/log/django/utils.log",
+            "filename": "/var/log/django/all.log",
             "formatter": "verbose",
         },
     },
 
     "loggers": {
-        "sms.utils": {              # <<<< EXACT MATCH
-            "handlers": ["console", "utils_file"],
+        "": {  # ROOT LOGGER – logs from ALL modules
+            "handlers": ["console", "all_file"],
             "level": "INFO",
-            "propagate": False,
+            "propagate": True,
         },
-    }
+    },
 }
-
-
