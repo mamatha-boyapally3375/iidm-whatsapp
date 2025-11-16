@@ -15,204 +15,11 @@ from django.conf import settings
 import time
 from django.contrib.auth.decorators import login_required
 import json
-
-
-
-
-# def upload_view(request):
-#     if request.method == 'POST':
-#         campaign_name = request.POST.get('campaign_name')
-#         message_template = request.POST.get('message_template')
-#         phone_number = request.POST.get('phone_number', '').strip()
-#         excel_file = request.FILES.get('excel_file')
-#         delay_input = request.POST.get('delay', '1')  # Default to 1 second
-
-#         # Validate and sanitize delay
-#         try:
-#             delay_seconds = int(delay_input)
-#             if delay_seconds < 0:
-#                 delay_seconds = 1
-#             elif delay_seconds > 60:
-#                 delay_seconds = 60  # Max 60 sec for safety
-#         except (ValueError, TypeError):
-#             delay_seconds = 1
-
-#         # Validate input
-#         if not campaign_name or not message_template:
-#             messages.error(request, "Campaign name and message template are required.")
-#             return render(request, 'upload.html')
-
-#         if not phone_number and not excel_file:
-#             messages.error(request, "Either a phone number or an Excel file is required.")
-#             return render(request, 'upload.html')
-
-#         # Handle single phone number → create Excel in memory
-#         if phone_number:
-#             df = pd.DataFrame([{'phone': phone_number}])
-#             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
-#                 df.to_excel(tmp, index=False)
-#                 excel_path = tmp.name
-#         else:
-#             # Handle uploaded Excel file
-#             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
-#                 for chunk in excel_file.chunks():
-#                     tmp.write(chunk)
-#                 excel_path = tmp.name
-
-#         # Estimate total numbers
-#         total = 1 if phone_number else pd.read_excel(excel_path).shape[0]
-
-#         # Save campaign
-#         campaign = Campaign.objects.create(
-#             name=campaign_name,
-#             template=message_template,
-#             total_numbers=total,
-#         )
-
-#         # Launch Celery task with delay
-#         send_bulk_whatsapp.delay(campaign.id, excel_path, message_template, delay_seconds)
-
-#         messages.success(request, "Campaign started!")
-#         return redirect('dashboard')
-
-#     return render(request, 'upload.html')
-
-
-
-
- # Make sure this is imported
-
-
-# views.py
-import os
-import pandas as pd
-import tempfile
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.conf import settings
 from django.contrib.sites.models import Site
 from urllib.parse import urljoin
-
-from .models import Campaign
-from .tasks import send_bulk_whatsapp
-from .utils import save_uploaded_file_to_media  # Make sure it's imported
-
-# @login_required
-# def upload_view(request):
-#     if request.method == 'POST':
-#         campaign_name = request.POST.get('campaign_name')
-#         message_template = request.POST.get('message_template')
-#         phone_number = request.POST.get('phone_number', '').strip()
-#         excel_file = request.FILES.get('excel_file')
-#         delay_input = request.POST.get('delay', '1')
-
-#         # Validate delay
-#         try:
-#             delay_seconds = int(delay_input)
-#             delay_seconds = max(0, min(delay_seconds, 60))
-#         except (ValueError, TypeError):
-#             delay_seconds = 1
-
-#         # Validate main fields
-#         if not campaign_name or not message_template:
-#             messages.error(request, "Campaign name and message template are required.")
-            
-#             return render(request, 'upload.html')
-#         if not phone_number and not excel_file:
-#             messages.error(request, "Either phone number or Excel file is required.")
-#             return render(request, 'upload.html')
-
-#         # ✅ Handle media uploads — THIS IS WHERE YOU PUT THE URL GENERATION
-#         img_url = None
-#         pdf_url = None
-#         try:
-#             img1 = request.FILES.get('img1')
-#             pdf = request.FILES.get('pdf')
-
-#             if img1 or pdf:
-#                 # Get absolute base URL of your site
-#                 # current_site = Site.objects.get_current()
-#                 # protocol = 'https' if request.is_secure() else 'http'
-#                 # base_url = f"{protocol}://{current_site.domain}"
-
-#                 current_site = Site.objects.get_current()
-#                 domain = current_site.domain
-
-#                 # Force HTTPS for ngrok domains
-#                 if domain.endswith('.ngrok-free.app') or domain.endswith('.ngrok.io'):
-#                     base_url = f"https://{domain}"
-#                 else:
-#                     protocol = 'https' if request.is_secure() else 'http'
-#                     base_url = f"{protocol}://{domain}"
-
-#                 if img1:
-#                     relative_path = save_uploaded_file_to_media(img1, "whatsapp/images")
-#                     img_url = urljoin(base_url, relative_path)
-
-#                 if pdf:
-#                     relative_path = save_uploaded_file_to_media(pdf, "whatsapp/pdfs")
-#                     pdf_url = urljoin(base_url, relative_path)
-#                 print("✅ Final img_url:", img_url)
-#                 print("✅ Final pdf_url:", pdf_url)
-
-#         except ValueError as e:
-#             messages.error(request, str(e))
-#             return render(request, 'upload.html')
-#         except Exception as e:
-#             messages.error(request, f"Failed to process media: {str(e)}")
-#             return render(request, 'upload.html')
-
-#         # Handle Excel or single number
-#         if phone_number:
-#             df = pd.DataFrame([{'phone': phone_number}])
-#             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
-#                 df.to_excel(tmp, index=False)
-#                 excel_path = tmp.name
-#         else:
-#             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
-#                 for chunk in excel_file.chunks():
-#                     tmp.write(chunk)
-#                 excel_path = tmp.name
-
-#         total = 1 if phone_number else pd.read_excel(excel_path).shape[0]
-#         campaign = Campaign.objects.create(
-#             user=request.user, 
-#             name=campaign_name,
-#             template=message_template,
-#             total_numbers=total,
-#         )
-
-#         # Launch task with absolute media URLs
-#         send_bulk_whatsapp.delay(
-#             campaign.id,
-#             excel_path,
-#             message_template,
-#             delay_seconds,
-#             img_url=img_url,
-#             pdf_url=pdf_url
-#         )
-
-#         messages.success(request, "Campaign started!")
-#         return redirect('dashboard')
-
-#     return render(request, 'upload.html')
-
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.files.uploadedfile import UploadedFile
-from django.conf import settings
-import os
-import tempfile
-import pandas as pd
-from urllib.parse import urljoin
-from django.contrib.sites.models import Site
-
-from .models import Campaign
-from .tasks import send_bulk_whatsapp
-from .utils import save_uploaded_file_to_media
-
+import logging
+logger = logging.getLogger(__name__)
 
 @login_required
 def upload_view(request):
@@ -224,6 +31,7 @@ def upload_view(request):
         img1 = request.FILES.get('img1')
         pdf = request.FILES.get('pdf')
         delay_input = request.POST.get('delay', '1')
+        logger.info(f"getting info for the upload view...campaign name: {campaign_name},phone:{phone_number},exfile:{excel_file},img1:{img1}and pdf:{pdf}")
 
         # ====== 1. Validate core fields ======
         if not campaign_name:
@@ -312,17 +120,23 @@ def upload_view(request):
                 else:
                     protocol = 'https' if request.is_secure() else 'http'
                     base_url = f"{protocol}://{domain}"
+                    logger.info(f"base url:{base_url}")
 
                 if img1:
                     relative_path = save_uploaded_file_to_media(img1, "whatsapp/images")
                     img_url = urljoin(base_url, relative_path)
+                    logger.info(f"img url in the view :{img_url}")
+
 
                 if pdf:
                     relative_path = save_uploaded_file_to_media(pdf, "whatsapp/pdfs")
                     pdf_url = urljoin(base_url, relative_path)
+                    logger.info(f"pdf url in the view :{pdf_url}")
 
         except Exception as e:
             messages.error(request, f"Failed to process media files: {str(e)}")
+            logger.error(f"Failed to process media files: {str(e)}")
+
             return render(request, 'upload.html')
 
         # ====== 8. Prepare Excel file ======
