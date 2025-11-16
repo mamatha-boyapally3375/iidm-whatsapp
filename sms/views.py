@@ -180,17 +180,7 @@ def upload_view(request):
             template=message_template,
             total_numbers=total,
         )
-
-        # ====== 10. Launch task ======
-        # send_bulk_whatsapp.delay(
-        #     campaign.id,
-        #     excel_path,
-        #     message_template,
-        #     delay_seconds,
-        #     request.user.id,
-        #     img_url=img_url,
-        #     pdf_url=pdf_url
-        # )
+        logging.info(f"campaign details:{campaign}")
         send_bulk_whatsapp.delay(
                 campaign_id=campaign.id,
                 user_id=request.user.id,
@@ -200,35 +190,11 @@ def upload_view(request):
                 img_url=img_url,
                 pdf_url=pdf_url
             )
-
+        logging. info(f"sending data to the bulf send_bulk_whatsapp..")
         messages.success(request, "Campaign started successfully!")
         return redirect('dashboard')
 
     return render(request, 'upload.html')
-
-
-
-# @login_required
-# def campaign_detail_view(request, campaign_id):
-#     campaign = get_object_or_404(Campaign, id=campaign_id, user=request.user)
-#     logs = MessageLog.objects.filter(campaign=campaign)
-#     print("🔍 Logs count:", logs.count())
-#     total = campaign.total_numbers or 0
-#     sent = campaign.sent_count or 0
-#     failed = campaign.failed_count or 0
-#     success_rate = round((sent / total) * 100, 2) if total > 0 else 0.0
-
-#     context = {
-#         'campaign': campaign,
-#         'logs': logs,
-#         'total': total,
-#         'sent': sent,
-#         'failed': failed,
-#         'success_rate': success_rate,
-#     }
-#     return render(request, 'campaign_detail.html', context)
-
-
 
 @login_required
 def campaign_detail_view(request, campaign_id):
