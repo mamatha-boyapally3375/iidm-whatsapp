@@ -8,7 +8,6 @@ urlpatterns = [
     path('upload/', views.upload_view, name='upload'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('campaign/<int:campaign_id>/', views.campaign_detail_view, name='campaign_detail'),
-    # path('login/', views.login, name='login'),
     path('test/',views.Test,name='test')
 
 
