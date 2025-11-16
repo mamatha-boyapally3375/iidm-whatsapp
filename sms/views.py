@@ -113,25 +113,20 @@ def upload_view(request):
         try:
             if img1 or pdf:
                 current_site = Site.objects.get_current()
-                domain = current_site.domain
-
-                if domain.endswith('.ngrok-free.app') or domain.endswith('.ngrok.io'):
-                    base_url = f"https://{domain}"
-                else:
-                    protocol = "https"
-                    base_url = f"{protocol}://{domain}"
-                    logger.info(f"base url:{base_url}")
+                domain = current_site.domain.strip()
+                base_url = f"https://{domain}"
+                logger.info(f"BASE URL USED: {base_url}")
 
                 if img1:
                     relative_path = save_uploaded_file_to_media(img1, "whatsapp/images")
-                    img_url = urljoin(base_url, relative_path)
-                    logger.info(f"img url in the view :{img_url}")
+                    img_url = f"{base_url}{relative_path}"
+                    logger.info(f"IMG URL in view: {img_url}")
 
 
                 if pdf:
                     relative_path = save_uploaded_file_to_media(pdf, "whatsapp/pdfs")
-                    pdf_url = urljoin(base_url, relative_path)
-                    logger.info(f"pdf url in the view :{pdf_url}")
+                    pdf_url = f"{base_url}{relative_path}"
+                    logger.info(f"PDF URL in view: {pdf_url}")
 
         except Exception as e:
             messages.error(request, f"Failed to process media files: {str(e)}")
