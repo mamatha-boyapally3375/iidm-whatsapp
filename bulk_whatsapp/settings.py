@@ -16,7 +16,7 @@ ALLOWED_HOSTS = [
     'www.iidm.co.in',
     '127.0.0.1',
     'localhost',
-    ''72.60.96.180',
+    '72.60.96.180',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
