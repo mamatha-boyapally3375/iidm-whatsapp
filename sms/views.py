@@ -73,8 +73,8 @@ def upload_view(request):
             if img1.content_type not in valid_image_types:
                 messages.error(request, "Please upload a valid image (JPEG, PNG, JPG, or GIF).")
                 return render(request, 'upload.html')
-            if img1.size > 5 * 1024 * 1024:  # 5 MB
-                messages.error(request, "Image file must be under 5 MB.")
+            if img1.size > 1 * 1024 * 1024:  # 1 MB
+                messages.error(request, "Image file must be under 1 MB.")
                 return render(request, 'upload.html')
 
         if pdf:
@@ -118,7 +118,7 @@ def upload_view(request):
                 if domain.endswith('.ngrok-free.app') or domain.endswith('.ngrok.io'):
                     base_url = f"https://{domain}"
                 else:
-                    protocol = 'https' if request.is_secure() else 'http'
+                    protocol = "https"
                     base_url = f"{protocol}://{domain}"
                     logger.info(f"base url:{base_url}")
 
