@@ -90,7 +90,7 @@ def send_bulk_whatsapp(self, campaign_id,user_id, excel_path, template, delay_se
                 error_code=str(error) if not success else None,
                 api_key_used=api_key
             )
-            logger.info(f"adding Data to MessageLog to {phone_number} with error: {error_code} and api used :{error_code}")
+            logger.info(f"adding Data to MessageLog to {phone} with error: {error_code} and api used :{error_code}")
             if success:
                 sent += 1
             else:
