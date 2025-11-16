@@ -142,16 +142,39 @@ MESSAGE_TAGS = {
     messages.ERROR: 'error',
 }
 LOGGING = {
-    'version': 1,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "formatters": {
+        "default": {
+            "format": "[{asctime}] {levelname} {name}: {message}",
+            "style": "{",
         },
     },
-    'loggers': {
-        '': {
-            'handlers': ['console'],
-            'level': 'INFO',
+
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "default",
+        },
+        "file_utils": {
+            "class": "logging.FileHandler",
+            "filename": "/var/log/django/utils.log",
+            "formatter": "default",
+        },
+    },
+
+    "loggers": {
+        "sms.utils": {               
+            "handlers": ["console", "file_utils"],
+            "level": "INFO",
+            "propagate": False,
+        },
+
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
         },
     },
 }
