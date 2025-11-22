@@ -27,11 +27,14 @@ def send_bulk_whatsapp(self, campaign_id,user_id, excel_path, template, delay_se
         campaign.total_numbers = total
         campaign.save()
 
-        api_keys = [k.strip() for k in getattr(settings, 'SMS_API_KEYS', []) if k.strip()]
-        if not api_keys:
-            raise ValueError("No API keys configured")
+        # api_keys = [k.strip() for k in getattr(settings, 'SMS_API_KEYS', []) if k.strip()]
+        # if not api_keys:
+        #     raise ValueError("No API keys configured")
 
-        current_key_index = 0
+        # current_key_index = 0
+        api_key = user.userprofile.api_key  
+        if not api_key:
+            raise ValueError(f"User {user.username} does not have an API key assigned.")
         sent, failed = 0, 0
 
         for idx, row in df.iterrows():
